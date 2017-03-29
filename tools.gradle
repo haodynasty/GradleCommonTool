@@ -1,0 +1,56 @@
+//from:https://docs.gradle.org/current/userguide/organizing_build_logic.html
+// Define a new property
+//ext.srcDirName = 'src/java'
+
+// Define a method using a closure as the method body
+//ext.srcDir = { file(srcDirName) }
+
+//get local property file
+ext.getLocalProperty ={key->
+  if (!localPropertiesFile().exists()) {
+    return null
+  }
+
+  Properties properties = new Properties()
+  properties.load(localPropertiesFile().newDataInputStream())
+  return properties.getProperty(key)
+}
+
+//get local property file
+ext.localPropertiesFile = {
+  return project.rootProject.file('local.properties');
+}
+
+//get current time
+ext.releaseTime = {
+  return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
+}
+
+//get version from git by commit number
+ext.gitVersionCode = {
+  def cmd = 'git rev-list HEAD --first-parent --count'
+  cmd.execute().text.trim().toInteger()
+}
+
+//获取自动化版本名字（git发布之前打上tag）
+ext.gitVersionTag = {
+  def cmd = 'git describe --tags'
+  def version = cmd.execute().text.trim()
+
+  def pattern = "-(\\d+)-g"
+  def matcher = version =~ pattern
+
+  if (matcher) {
+    version = version.substring(0, matcher.start()) + "." + matcher[0][1]
+  } else {
+    version = version + ".0"
+  }
+
+  return version
+}
+
+//获取最新的提交日志
+ext.gitLogFirstCommit = {
+  def cmd = 'git log -1 --pretty="%s"' //%cd是日期，%an是作者
+  cmd.execute().text.trim()
+}
