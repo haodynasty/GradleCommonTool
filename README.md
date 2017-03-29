@@ -31,6 +31,15 @@ applicationVariants.all { variant ->
 }
 ```
 
+3. Method
+
+- getLocalProperty("key") // get value from local.properties
+- localPropertiesFile() //get local.properties file
+- releaseTime() //get system time
+- gitVersionCode() //get version from git by commit number
+- gitVersionTag() //get tag of git(ps: tag is 1.0, commit 2 numbers after tag, the version is 1.0.2)
+- gitLogFirstCommit() //get first commit log
+
 # Link
 - [organizing_build_logic](https://docs.gradle.org/current/userguide/organizing_build_logic.html)
 - [BLOB](http://www.blakequ.com)
