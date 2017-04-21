@@ -39,6 +39,10 @@ applicationVariants.all { variant ->
 - gitVersionCode() //get version from git by commit number
 - gitVersionTag() //get tag of git(ps: tag is 1.0, commit 2 numbers after tag, the version is 1.0.2)
 - gitLogFirstCommit() //get first commit log
+- buildLog() //output build log
+
+4. Task
+- zipMapping //package mapping zip file to build/outputs
 
 # Link
 - [organizing_build_logic](https://docs.gradle.org/current/userguide/organizing_build_logic.html)
