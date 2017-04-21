@@ -5,7 +5,9 @@
 // Define a method using a closure as the method body
 //ext.srcDir = { file(srcDirName) }
 
-//get local property file
+/**
+ * get local property file
+ */
 ext.getLocalProperty ={key->
   if (!localPropertiesFile().exists()) {
     return null
@@ -16,23 +18,31 @@ ext.getLocalProperty ={key->
   return properties.getProperty(key)
 }
 
-//get local property file
+/**
+ * get local property file
+ */
 ext.localPropertiesFile = {
   return project.rootProject.file('local.properties');
 }
 
-//get current time
+/**
+ * get current time
+ */
 ext.releaseTime = {
   return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
 }
 
-//get version from git by commit number
+/**
+ * get version from git by commit number
+ */
 ext.gitVersionCode = {
   def cmd = 'git rev-list HEAD --first-parent --count'
   cmd.execute().text.trim().toInteger()
 }
 
-//获取自动化版本名字（git发布之前打上tag）
+/**
+ * 获取自动化版本名字（git发布之前打上tag）
+ */
 ext.gitVersionTag = {
   def cmd = 'git describe --tags'
   def version = cmd.execute().text.trim()
@@ -49,8 +59,53 @@ ext.gitVersionTag = {
   return version
 }
 
-//获取最新的提交日志
+/**
+ * 获取最新的提交日志
+ */
 ext.gitLogFirstCommit = {
   def cmd = 'git log -1 --pretty="%s"' //%cd是日期，%an是作者
   cmd.execute().text.trim()
+}
+
+/**
+ * 获取格式化时间
+ * @return
+ */
+ext.formatTime = { format->
+  if (format == null || format.size() == 0){
+    format = "yyyy-MM-dd HH:mm:ss"
+  }
+  def date = new Date()
+  def formattedDate = date.format(format)
+  return formattedDate
+}
+
+/**
+ * 输出打包日志
+ */
+ext.buildLog = { versionName->
+  StringBuilder builder = new StringBuilder();
+  builder.append("[Build Time]=" + releaseTime())
+  builder.append("\r\n")
+  builder.append("[Version Code]=" + gitVersionCode())
+  builder.append("\r\n")
+  builder.append("[Version Name]=" + versionName)
+  builder.append("\r\n")
+  builder.append("[Last Commit]=" + gitLogFirstCommit())
+  return builder.toString()
+}
+
+/**
+ * 自动打包mapping文件
+ */
+task zipMapping(type: Zip) {
+  description 'zip mapping file to outputs'
+  File destDir = file('build/outputs')
+  baseName 'mapping'
+  version gitVersionTag() + '-' + gitVersionCode() + '-' + releaseTime()
+  extension 'zip'
+  from('build/outputs/mapping') {
+    exclude '**/dump.txt'
+  }
+  destinationDir destDir
 }
